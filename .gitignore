@@ -1,0 +1,7 @@
+.venv/
+.env.local
+.env
+lessons/
+**/migrations/
+db.sqlite3
+**/__pycache__/
