@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'catalog.apps.CatalogConfig'
+    'catalog.apps.CatalogConfig',
+    'account.apps.AccountConfig'
 ]
 
 MIDDLEWARE = [
@@ -58,7 +59,10 @@ ROOT_URLCONF = 'locallibrary.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'locallibrary', 'templates')],
+        'DIRS': [
+                    os.path.join(BASE_DIR, 'locallibrary', 'templates'),
+                    os.path.join(BASE_DIR, 'account', 'templates')
+                 ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -125,3 +129,18 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_REDIRECT_URL = '/catalog/'
+
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_HOST_USER = 'django_academy_shop@mail.ru'
+EMAIL_HOST_PASSWORD = 'config("EMAIL_PASSWORD")'
+EMAIL_PORT = 2525
+# EMAIL_PORT = 465
+EMAIL_USE_TLS = True
