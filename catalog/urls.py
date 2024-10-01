@@ -8,5 +8,10 @@ urlpatterns = [
         re_path(r'^books/$', views.BookListView.as_view(), name='books_list'),
         re_path(r'^book/(?P<pk>\d+)$', views.BookDetailView.as_view(), name='book-detail'),
         re_path(r'^mybooks/$', views.LoanedBooksByUserListView.as_view(), name='my-borrowed'),
-        re_path(r'^all_borrowed_books/$', views.LoanedBooksByAllListView.as_view(), name='all-borrowed')
+        re_path(r'^all_borrowed_books/$', views.LoanedBooksByAllListView.as_view(), name='all-borrowed'),
+        re_path(r'^book/(?P<pk>[-\w]+)/renew/$', views.renew_book_librarian, name='renew-book-librarian'),
+
+        re_path(r'^book/create/$', views.BookCreate.as_view(), name='book_create'),
+        re_path(r'^book/(?P<pk>\d+)/update/$', views.BookUpdate.as_view(), name='book_update'),
+        re_path(r'^book/(?P<pk>\d+)/delete/$', views.BookDelete.as_view(), name='book_delete'),
     ]
