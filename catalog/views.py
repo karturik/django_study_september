@@ -68,6 +68,14 @@ class BookListView(generic.ListView):
         return context
     
 
+class AuthorListView(generic.ListView):
+    model = Author
+    context_object_name = 'author_list' 
+    template_name = 'authors/authors_list_page.html'
+
+    paginate_by = 10
+
+
 # def book_detail_view(request, pk):
 #     try:
 #         book_id = Book.objects.get(pk=pk)
@@ -132,6 +140,7 @@ def renew_book_librarian(request, pk):
 
             # Переход по адресу 'all-borrowed':
             return HttpResponseRedirect(reverse('all-borrowed'))
+        
 
     # Если это GET (или какой-либо ещё), создать форму по умолчанию.
     else:
