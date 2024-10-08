@@ -141,6 +141,11 @@ def renew_book_librarian(request, pk):
             # Переход по адресу 'all-borrowed':
             return HttpResponseRedirect(reverse('all-borrowed'))
         
+        else:
+            print('Form is invalid')
+            # Add this else to ensure the invalid form redisplays errors
+            return render(request, 'books/book_renew_librarian.html', {'form': form, 'bookinst': book_inst})
+        
 
     # Если это GET (или какой-либо ещё), создать форму по умолчанию.
     else:
