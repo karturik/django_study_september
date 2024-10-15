@@ -7,13 +7,14 @@ from django.views import generic
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 import datetime
-    
+import pandas as pd
 
-from .forms import RenewBookForm
+from .forms import RenewBookForm, UploadBooksFileForm
 from .models import Book, Author, BookInstance, Genre
+from .utils import create_books_from_df
 
 
 # Create your views here.
@@ -55,7 +56,7 @@ class BookListView(generic.ListView):
     # queryset = Book.objects.filter(title__icontains='war')[:5] # Получение 5 книг, содержащих слово 'war' в заголовке
     template_name = 'books/books_list_page.html'  # Определение имени вашего шаблона и его расположения
 
-    paginate_by = 2
+    paginate_by = 20
     
     # def get_queryset(self):
     #     return Book.objects.filter(title__icontains='war')[:5] # Получить 5 книг, содержащих 'war' в заголовке
@@ -190,3 +191,32 @@ class BookDelete(DeleteView):
         response = super().form_valid(form)
         messages.error(self.request, self.delete_message)
         return response
+    
+
+def book_file_upload_view(request):
+    if request.method == 'POST':
+        if 'file' not in request.FILES:
+            return HttpResponse('No file uploaded')
+        
+        file = request.FILES['file']
+        file_format = file.name.split('.')[-1].lower()
+        
+        if file_format == 'csv':
+            try:
+                df = pd.read_csv(file)
+            except Exception as e:
+                return HttpResponse(f'Error reading CSV file: {e}')
+        elif file_format in ['xls', 'xlsx']:
+            try:
+                df = pd.read_excel(file)
+            except Exception as e:
+                return HttpResponse(f'Error reading Excel file: {e}')
+        else:
+            return HttpResponse('Unsupported file format')
+
+        create_books_from_df(df)
+        
+        return HttpResponse(df.to_html())
+    else:
+        form = UploadBooksFileForm()
+        return render(request, 'books/book_file_upload.html', context={'form': form})

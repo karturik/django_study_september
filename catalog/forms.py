@@ -36,7 +36,7 @@ class RenewBookModelForm(forms.ModelForm):
         if data > datetime.date.today() + datetime.timedelta(weeks=4):
             raise ValidationError(_('Invalid date - renewal more than 4 weeks ahead'))
 
-        # Не забывайте всегда возвращать очищенные данные
+        # Не забывайте всегда возвращать очищенные дан`ные
         return data
 
     class Meta:
@@ -44,3 +44,7 @@ class RenewBookModelForm(forms.ModelForm):
         fields = ['due_back',]
         labels = { 'due_back': _('Renewal date'), }
         help_texts = { 'due_back': _('Enter a date between now and 4 weeks (default 3).'), }
+
+
+class UploadBooksFileForm(forms.Form):
+    file = forms.FileField()
