@@ -220,3 +220,23 @@ def book_file_upload_view(request):
     else:
         form = UploadBooksFileForm()
         return render(request, 'books/book_file_upload.html', context={'form': form})
+
+
+def searching(request):
+    if request.method == "POST":
+        print(request.POST)
+        searched = request.POST.get('searched').lower()
+        # print(f"{searched=}")
+        books_results = Book.objects.filter(title__icontains=searched)
+        # print(books_results)
+        authors_results = Author.objects.filter(first_name__icontains=searched)
+
+        context = {'searched': searched, 
+                    'books_results': books_results,
+                    'authors_results': authors_results}
+
+        print(context)
+        
+        return render(request, "catalog/search_page.html", context=context)
+    else:
+        return render(request, "catalog/search_page.html")
