@@ -2,6 +2,9 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import permission_required
 from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+
 
 from django.views import generic
 from django.shortcuts import render
@@ -94,6 +97,22 @@ class AuthorListView(generic.ListView):
 class BookDetailView(generic.DetailView):
     model = Book
     template_name = 'books/books_detail_page.html'
+
+    def get_context_data(self, **kwargs):
+        # В первую очередь получаем базовую реализацию контекста
+        context = super(BookDetailView, self).get_context_data(**kwargs)
+        
+        # Получаем экземпляр книги, который отображается на странице деталей
+        book = self.get_object()
+        
+        is_liked = False
+        # Проверяем, аутентифицирован ли пользователь и имеет ли он профиль
+        if self.request.user.is_authenticated and hasattr(self.request.user, 'profile'):
+            is_liked = self.request.user.profile.liked_books.filter(id=book.id).exists()
+        
+        # Добавляем новую переменную к контексту и инициализируем её
+        context['is_liked'] = is_liked
+        return context
 
     
 class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
@@ -234,9 +253,23 @@ def searching(request):
         context = {'searched': searched, 
                     'books_results': books_results,
                     'authors_results': authors_results}
-
-        print(context)
         
         return render(request, "catalog/search_page.html", context=context)
     else:
         return render(request, "catalog/search_page.html")
+    
+
+@require_POST
+def like_book(request):
+    book_id = request.POST.get('book_id')
+    book = Book.objects.get(pk=book_id)
+    user_profile = request.user.profile  # предполагается, что у пользователя есть профиль
+
+    if user_profile.liked_books.filter(id=book_id).exists():
+        user_profile.liked_books.remove(book)
+        status = 'unliked'
+    else:
+        user_profile.liked_books.add(book)
+        status = 'liked'
+
+    return JsonResponse({'status': status})
